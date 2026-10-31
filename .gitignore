@@ -1,0 +1,30 @@
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+crash.log
+crash.*.log
+
+# Terraform variables containing secrets
+*.tfvars
+!*.tfvars.example
+
+# Ansible inventory
+ansible/inventory.ini
+
+# Environment variables and secrets
+.env
+.env.*
+
+# SSH private keys
+*.pem
+*.key
+id_rsa
+id_ed25519
+
+# OS and editor files
+.DS_Store
+.vscode/
