@@ -1,0 +1,53 @@
+
+---
+- name: Deploy APIWatch on Azure VM
+  hosts: apiwatch
+  become: true
+  gather_facts: true
+
+  vars:
+    deploy_dir: /opt/apiwatch
+    app_source_dir: "{{ playbook_dir }}/../../apiwatch"
+    docker_config_dir: "/home/{{ ansible_user }}/.docker"
+
+  tasks:
+    - name: Create APIWatch deployment directory
+      ansible.builtin.file:
+        path: "{{ deploy_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Copy Azure Docker Compose configuration
+      ansible.builtin.copy:
+        src: "{{ app_source_dir }}/docker-compose.azure.yml"
+        dest: "{{ deploy_dir }}/docker-compose.yml"
+        mode: "0644"
+
+    - name: Copy encrypted application environment file
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/files/apiwatch.env.vault"
+        dest: "{{ deploy_dir }}/.env"
+        mode: "0600"
+        decrypt: true
+        no_log: true
+
+    - name: Validate Docker Compose configuration
+      ansible.builtin.command:
+        cmd: docker compose -f docker-compose.yml config --quiet
+        chdir: "{{ deploy_dir }}"
+      changed_when: false
+      no_log: true
+
+    - name: Pull APIWatch Docker images
+      ansible.builtin.command:
+        cmd: docker compose -f docker-compose.yml pull
+        chdir: "{{ deploy_dir }}"
+      environment:
+        DOCKER_CONFIG: "{{ docker_config_dir }}"
+
+    - name: Start APIWatch services
+      ansible.builtin.command:
+        cmd: docker compose -f docker-compose.yml up -d --remove-orphans
+        chdir: "{{ deploy_dir }}"
+      environment:
+        DOCKER_CONFIG: "{{ docker_config_dir }}"
