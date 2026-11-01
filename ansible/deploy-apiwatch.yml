@@ -22,6 +22,20 @@
         src: "{{ app_source_dir }}/docker-compose.azure.yml"
         dest: "{{ deploy_dir }}/docker-compose.yml"
         mode: "0644"
+    
+    
+    - name: Create Prometheus configuration directory
+      ansible.builtin.file:
+        path: "{{ deploy_dir }}/monitoring/prometheus"
+        state: directory
+        mode: "0755"
+
+    - name: Copy Prometheus configuration
+      ansible.builtin.copy:
+        src: "{{ app_source_dir }}/monitoring/prometheus/prometheus.yml"
+        dest: "{{ deploy_dir }}/monitoring/prometheus/prometheus.yml"
+        mode: "0644"
+
 
     - name: Copy encrypted application environment file
       ansible.builtin.copy:
