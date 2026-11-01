@@ -27,6 +27,11 @@ jobs:
       - name: Initialize Terraform
         run: terraform init -backend=false -input=false
 
+      - name: Generate temporary SSH key for validation
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -N ""
+
       - name: Validate Terraform
         run: terraform validate
 
