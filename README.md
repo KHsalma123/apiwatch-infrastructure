@@ -98,10 +98,12 @@ apiwatch-infrastructure/
     ├── deploy-apiwatch.yml
     ├── inventory.ini.example
     └── files/
-        └── apiwatch.env.vault
+        └── apiwatch.env.example
 ```
 
-Local-only files such as `terraform.tfvars`, Terraform state files, execution plans, `ansible/inventory.ini`, and virtual environment files are excluded from Git.
+The repository contains only the safe environment configuration example. The actual encrypted Ansible Vault file is kept locally and excluded from Git.
+
+Local-only files such as `terraform.tfvars`, Terraform state files, execution plans, `ansible/inventory.ini`, the actual Vault file, and virtual environment files are excluded from Git.
 
 ### Terraform Files
 
@@ -120,7 +122,7 @@ Local-only files such as `terraform.tfvars`, Terraform state files, execution pl
 | `install-docker.yml` | Installs and configures Docker Engine and Docker Compose |
 | `deploy-apiwatch.yml` | Deploys and configures APIWatch on the Azure VM |
 | `inventory.ini.example` | Example Ansible inventory configuration |
-| `files/apiwatch.env.vault` | Encrypted application environment configuration |
+| `files/apiwatch.env.example` | Safe example of application environment variables |
 
 ## Infrastructure Provisioning with Terraform
 
@@ -266,23 +268,33 @@ The application repository must be available at `~/apiwatch` on the Ansible cont
 
 The Azure VM must also have valid Docker registry authentication configured before the deployment playbook pulls the application images.
 
+### Ansible Vault and Environment Configuration
+
 The application environment file is protected using **Ansible Vault**.
 
-The encrypted file is stored at:
+The repository contains only:
+
+```text
+ansible/files/apiwatch.env.example
+```
+
+This example contains the same environment variable names as the application's `.env` file, but uses placeholder values. It is provided for documentation and configuration reference only.
+
+The actual encrypted file:
 
 ```text
 ansible/files/apiwatch.env.vault
 ```
 
-Ansible decrypts it during deployment. The plaintext environment file is not stored in the repository.
+must be created locally before deployment. It is excluded from Git through `.gitignore` and must never be committed.
 
-### Ansible Vault
-
-To encrypt the application's environment file:
+To encrypt the application's environment file, run this command from the infrastructure repository root:
 
 ```bash
 ansible-vault encrypt ~/apiwatch/.env --output ansible/files/apiwatch.env.vault
 ```
+
+Ansible decrypts this local encrypted file during deployment. The plaintext environment file and the encrypted Vault file are not stored in the Git repository.
 
 Run the deployment playbook using the Vault password prompt:
 
@@ -385,7 +397,8 @@ Security is implemented throughout the infrastructure and deployment process.
 ### Secrets Management
 
 - Ansible Vault encrypts sensitive deployment configuration.
-- Environment files are excluded through `.gitignore`.
+- The actual encrypted Vault file and plaintext environment files are excluded through `.gitignore`.
+- A safe environment configuration example is provided without real credentials.
 - Private SSH keys are never stored in the repository.
 - Registry authentication configuration remains on the VM.
 - MongoDB Atlas credentials are provided through environment variables.
@@ -397,7 +410,7 @@ Security is implemented throughout the infrastructure and deployment process.
 - Local variable files containing sensitive information are excluded.
 - Terraform changes are reviewed before applying.
 
-> Never commit credentials, private keys, plaintext environment files, Terraform state files, or Terraform execution plans.
+> Never commit credentials, private keys, plaintext environment files, the actual encrypted Vault file, Terraform state files, or Terraform execution plans.
 
 ## Cost Management
 

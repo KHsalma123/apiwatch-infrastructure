@@ -28,3 +28,6 @@ id_ed25519
 # OS and editor files
 .DS_Store
 .vscode/
+
+# Real encrypted Ansible Vault file
+ansible/files/apiwatch.env.vault
