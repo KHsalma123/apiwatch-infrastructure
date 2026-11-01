@@ -43,7 +43,7 @@
         dest: "{{ deploy_dir }}/.env"
         mode: "0600"
         decrypt: true
-        no_log: true
+      no_log: true
 
     - name: Validate Docker Compose configuration
       ansible.builtin.command:
